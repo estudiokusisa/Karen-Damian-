@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta property="og:title" content="Nuestra Boda: Karen & Damian" />
+    <meta property="og:description" content="Haz clic para ver nuestra invitación." />
+    <meta property="og:image" content="https://karen-y-damian.netlify.app/miniatura.jpg" />
+    <meta property="og:url" content="https://karen-y-damian.netlify.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@300;400&display=swap" rel="stylesheet">
+    
+    <!-- FAVICON (Monograma de los novios) -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <title>Invitación Especial</title>
+    
+    <style>
+        body, html { 
+            margin: 0; padding: 0; height: 100%; 
+            font-family: 'Noto Serif Display', serif; 
+            overflow: hidden; background: #000; 
+        }
+        
+        /* PANTALLA SOBRE */
+        #pantalla-sobre {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 20; cursor: pointer; transition: opacity 1s ease;
+            background: #fff;
+        }
+        #img-sobre { width: 100%; height: 100%; object-fit: cover; }
+
+        /* PANTALLA INVITADO: Transición suave */
+        #pantalla-invitado { 
+            display: none; 
+            height: 100vh; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            opacity: 0; 
+            transition: opacity 1.5s ease-in-out; 
+        }
+        
+        .cover-container {
+            background-color: #2c2c2c; /* Color de fondo por si tarda la imagen */
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('cover.jpg');
+            background-size: cover; background-position: center; width: 100%; height: 100vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; color: white; padding: 20px;
+        }
+        
+        h2 { font-weight: 300; font-size: 1.2rem; margin-bottom: 5px; opacity: 0.9; }
+        
+        /* ESTILOS DEL NOMBRE CON TRANSICIÓN Y PARPADEO */
+        h1 { 
+            font-size: 1.6rem; 
+            margin: 15px 0; 
+            font-weight: 300; 
+            letter-spacing: 1px; 
+            color: #fff; 
+            opacity: 0.3;
+            transition: opacity 0.8s ease-in-out;
+        }
+        
+        /* Animación de parpadeo tenue mientras carga */
+        .cargando-nombre {
+            animation: parpadeoSuave 1.5s infinite ease-in-out;
+        }
+
+        @keyframes parpadeoSuave {
+            0% { opacity: 0.2; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.2; }
+        }
+
+        .passes-box { background: rgba(255, 255, 255, 0.15); padding: 15px 25px; border-radius: 20px; margin: 20px 0; backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .btn-ingresar { background-color: #ffffff; color: #333; padding: 14px 40px; border: none; border-radius: 50px; font-weight: 600; cursor: pointer; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-top: 20px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+@media (min-width: 768px) {
+    .cover-container {
+        background-position: center bottom;
+    }
+}
+    </style>
+</head>
+<body>
+
+    <div id="pantalla-sobre" onclick="revelarInvitacion()">
+        <img src="sobre.jpg" alt="Abrir Sobre" id="img-sobre">
+    </div>
+
+    <div id="pantalla-invitado">
+        <div class="cover-container">
+            <h2 id="saludo">Con especial consideración para:</h2>
+            <!-- Arranca con el texto de carga y la animación parpadeante -->
+            <h1 id="nombre-invitado" class="cargando-nombre">Cargando nombre de invitado...</h1>
+            <div class="passes-box">
+                <p>Hemos reservado en su honor</p>
+                <p><strong><span id="num-pases">...</span> Pase(s)</strong></p>
+            </div>
+            <button class="btn-ingresar" onclick="abrirInvitacion()">Ver detalles</button>
+        </div>
+    </div>
+
+    <script>
+        // Precarga global de la imagen de fondo para evitar la pantalla negra al hacer clic
+        const coverImage = new Image();
+        coverImage.src = 'cover.jpg';
+
+        function revelarInvitacion() {
+            const sobre = document.getElementById('pantalla-sobre');
+            const invitado = document.getElementById('pantalla-invitado');
+            
+            sobre.style.opacity = '0';
+            
+            setTimeout(() => { 
+                sobre.style.display = 'none'; 
+                invitado.style.display = 'flex'; 
+                setTimeout(() => { invitado.style.opacity = '1'; }, 50);
+            }, 1000);
+        }
+
+        async function obtenerDatosURL() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            const urlScript = "https://script.google.com/macros/s/AKfycbxTg2bSV0bUMexIVhbQvHoonuhp5xaoEqlCeBw3MkahFYutXdOP6nnwI2c5aZuQ9pgR7A/exec"; 
+            
+            if (!id) {
+                const elementoNombre = document.getElementById('nombre-invitado');
+                elementoNombre.innerText = "Invitado Especial";
+                elementoNombre.classList.remove('cargando-nombre');
+                elementoNombre.style.opacity = '1';
+                document.getElementById('num-pases').innerText = "1";
+                return;
+            }
+
+            try {
+                const respuesta = await fetch(urlScript + "?id=" + id + "&t=" + Date.now());
+                const datos = await respuesta.json();
+                
+                const elementoNombre = document.getElementById('nombre-invitado');
+                if (datos && datos.nombre && datos.nombre !== "") {
+                    // Desvanecemos el texto de carga
+                    elementoNombre.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        // Cambiamos al nombre real y quitamos el parpadeo
+                        elementoNombre.innerText = datos.nombre;
+                        elementoNombre.classList.remove('cargando-nombre');
+                        document.getElementById('num-pases').innerText = datos.pases;
+                        
+                        // Hacemos aparecer el nombre real con una transición suave
+                        elementoNombre.style.opacity = '1';
+                    }, 300);
+                } else {
+                    throw new Error("Datos vacíos");
+                }
+            } catch (error) {
+                console.log("Error de conexión, pero el ID recibido es: " + id);
+            }
+        }
+
+        function abrirInvitacion() {
+            window.location.href = "https://kusisainvitaciones.com/karen-y-damian"; 
+        }
+
+        window.onload = obtenerDatosURL;
+    </script>
+</body>
+</html>
